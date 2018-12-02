@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "scripts": {},
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "del": "^3.0.0",
+    "fs": "0.0.1-security",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-replace": "^1.0.0",
+    "gulp-uglify": "^3.0.1",
+    "gulp-uglifycss": "^1.1.0",
+    "gulp-util": "^3.0.8",
+    "lodash": "^4.17.5",
+    "minimatch": "^3.0.2",
+    "randomatic": "^3.0.0",
+    "run-sequence": "^2.2.1"
+  }
+}
