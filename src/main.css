@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+[id^="chatbot-widget"] img {
+  width: 100%;
+  height: auto;
+  vertical-align: baseline;
+}
+
 [id^="chatbot-widget"] .chatbot-header {
   position: relative;
   display: flex;
@@ -67,6 +73,7 @@
 
 [id^="chatbot-widget"] .chat-row {
   clear: both;
+  overflow: hidden;
   padding: 0 10px;
 }
 
@@ -165,26 +172,40 @@
   overflow: scroll;
   display: flex;
   flex-wrap: nowrap;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 [id^="chatbot-widget"] .card-item {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
   align-items: center;
+  max-width: 200px;
+  overflow: hidden;
   border: 1px solid #ccc;
   border-radius: 10px;
   margin: 10px;
   cursor: pointer;
 }
 [id^="chatbot-widget"] .card-item img {
-  max-width: 150px;
+  border-bottom: 1px solid;
+}
+[id^="chatbot-widget"] .card-item .card-title,
+[id^="chatbot-widget"] .card-item .card-sub-title {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0 5px;
 }
 [id^="chatbot-widget"] .card-link {
-  width: 150px;
-  padding: 5px 10px;
   margin: 0;
   color: #5217ca;
+}
+[id^="chatbot-widget"] .buttons {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 5px;
 }
 
 [id^="chatbot-widget"] .view_chat {

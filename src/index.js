@@ -115,59 +115,51 @@ function showError(error) {
 }
 
 function showResponse(response) {
-  var row;
+  var chat_item;
+  var prompt = response.message ? response.message : '';
+  chat_item = buildResponseRow(prompt);
+  addToConversation(chat_item);
   try {
-    var message = JSON.parse(response.message);
-    var prompt = message.prompt ? message.prompt : '';
-    row = buildResponseRow(prompt);
-    if (message.type) {
-      row.querySelector('.message').appendChild(buildTemplates(message));
+    if (response.responseCard && response.responseCard.genericAttachments) {
+      chat_item = buildResponseRow(generateCardsItem(response.responseCard.genericAttachments));
+      addToConversation(chat_item);
     }
-    addToConversation(row);
   }
   catch(err) {
     console.log(err);
-    row = buildResponseRow(response.message);
-    addToConversation(row);
   }
-}
-
-function buildTemplates(message) {
-  var formatedTemplate;
-  // @TODO To be added components: image, audio, video, date
-  if (message.type == "cards") {
-    formatedTemplate = generateCardsItem(message.data);
-  }
-  else {
-    formatedTemplate = generatePickerItem(message.data);
-  }
-  return formatedTemplate;
 }
 
 function generateCardsItem(options) {
-  var cards = document.createElement('div');
-  cards.className = 'cards';
-  cards.innerHTML = '';
+  var cards = `<div class="cards">`;
+  var buttons = null;
   options.forEach(function(option) {
-    cards.innerHTML += `
-      <div class="card-item" onclick="pushMessageToLex('${option.value}')" data-value="${option.value}">
-        ${option.url ? `<img src="${option.url}">` : ''}
-        <p class="card-link">${option.label}</p>
+    if (option.buttons) {
+      buttons = generatePickerItem(option.buttons);
+    }
+    cards += `
+      <div class="card-item">
+        ${option.attachmentLinkUrl ? `<a class="card-link" href="${option.attachmentLinkUrl}">` : ''}
+          ${option.imageUrl ? `<img src="${option.imageUrl}">` : ''}
+          ${option.title ? `<h3 class="card-title">${option.title}</h3>` : ''}
+          ${option.subTitle ? `<h4 class="card-sub-title">${option.subTitle}</h4>` : ''}
+          ${option.buttons ? buttons : ''}
+        ${option.attachmentLinkUrl ? `</a>` : ''}
       </div>
     `;
   });
+  cards += `</div>`;
   return cards;
 }
 
 function generatePickerItem(options) {
-  var buttons = document.createElement('div');
-  buttons.className = 'buttons';
-  buttons.innerHTML = '';
+  var buttons = `<div class="buttons">`;
   options.forEach(function(option) {
-    buttons.innerHTML += `
-      <span class="button" onclick="pushMessageToLex('${option.value}')" data-value="${option.value}">${option.label}</span>
+    buttons += `
+      <span class="button" onclick="pushMessageToLex('${option.value}')" data-value="${option.value}">${option.text}</span>
     `;
   });
+  buttons += `</div>`;
   return buttons;
 }
 
