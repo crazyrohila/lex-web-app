@@ -1,26 +1,99 @@
-## Response Cards ##
+## Cards ##
 
 ```json
 {
-  "contentType": "application/vnd.amazonaws.card.generic",
-  "genericAttachments": [
-    {
-      "attachmentLinkUrl": null,
-      "buttons": [
-        {
-          "text": "exit",
-          "value": "exit"
-        },
-        {
-          "text": "bye",
-          "value": "bye"
-        }
-      ],
-      "imageUrl": "https://upload.wikimedia.org/wikipedia/en/6/65/Hello_logo_sm.gif",
-      "subTitle": "Hello there!",
-      "title": "Hello"
-    }
-  ],
-  "version": "1"
+  "type": "cards",
+  "prompt": "prompt message",
+  "data": [{
+    "label": "Title",
+    "value": "text to be sent to the server",
+    "url": "Image URL"
+  },
+  {
+    "label": "Title ",
+    "value": "text to be sent to the server",
+    "url": "Image URL"
+  }]
+}
+```
+
+
+## Picker ##
+
+```json
+{
+  "type": "buttons",
+  "prompt": "prompt message",
+  "data": [{
+    "label": "Text to show",
+    "value": "Value send to lex"
+  },
+  {
+    "label": "Text to show",
+    "value": "Value send to lex"
+  }]
+}
+```
+
+## Plaintext ##
+
+```json
+{
+  "type": "plaintext",
+  "prompt": "prompt message"
+}
+```
+
+### Yet to be added components
+
+## Date ##
+
+```javascript
+{
+  "type": "date",
+  "prompt": "String"
+}
+```
+
+## Image ##
+
+```javascript
+{
+  "type": "image",
+  "prompt": "string"
+  "data": [{
+    "url": "Image URL",
+    "label": "string",
+    "value": "string"
+  }]
+}
+```
+
+## Video ##
+
+```javascript
+{
+  "type": "video",
+  "prompt": "string"
+  "data": [{
+    "url": "Video URL",
+    "thumb": "thumb URL",
+    "label": "string",
+    "value": "string"
+  }]
+}
+```
+
+## Audio ##
+
+```javascript
+{
+  "type": "audio",
+  "prompt": "string"
+  "data": [{
+    "url": "Audio URL",
+    "label": "string",
+    "value": "string"
+  }]
 }
 ```

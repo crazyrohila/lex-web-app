@@ -91,41 +91,54 @@ function showError(error) {
 }
 
 function showResponse(response) {
-  var chat_item;
-  var prompt = response.message ? response.message : '';
-  chat_item = buildResponseRow(prompt);
-  addToConversation(chat_item);
+  var row;
 
   try {
-    if (response.responseCard && response.responseCard.genericAttachments) {
-      chat_item = buildResponseRow(generateCardsItem(response.responseCard.genericAttachments));
-      addToConversation(chat_item);
+    var message = JSON.parse(response.message);
+    var prompt = message.prompt ? message.prompt : '';
+    row = buildResponseRow(prompt);
+
+    if (message.type) {
+      row.querySelector('.message').appendChild(buildTemplates(message));
     }
+
+    addToConversation(row);
   } catch (err) {
     console.log(err);
+    row = buildResponseRow(response.message);
+    addToConversation(row);
   }
 }
 
-function generateCardsItem(options) {
-  var cards = "<div class=\"cards\">";
-  var buttons = null;
-  options.forEach(function (option) {
-    if (option.buttons) {
-      buttons = generatePickerItem(option.buttons);
-    }
+function buildTemplates(message) {
+  var formatedTemplate; // @TODO To be added components: image, audio, video, date
 
-    cards += "\n      <div class=\"card-item\">\n        " + (option.attachmentLinkUrl ? "<a class=\"card-link\" href=\"" + option.attachmentLinkUrl + "\">" : '') + "\n          " + (option.imageUrl ? "<img src=\"" + option.imageUrl + "\">" : '') + "\n          " + (option.title ? "<h3 class=\"card-title\">" + option.title + "</h3>" : '') + "\n          " + (option.subTitle ? "<h4 class=\"card-sub-title\">" + option.subTitle + "</h4>" : '') + "\n          " + (option.buttons ? buttons : '') + "\n        " + (option.attachmentLinkUrl ? "</a>" : '') + "\n      </div>\n    ";
+  if (message.type == "cards") {
+    formatedTemplate = generateCardsItem(message.data);
+  } else {
+    formatedTemplate = generatePickerItem(message.data);
+  }
+
+  return formatedTemplate;
+}
+
+function generateCardsItem(options) {
+  var cards = document.createElement('div');
+  cards.className = 'cards';
+  cards.innerHTML = '';
+  options.forEach(function (option) {
+    cards.innerHTML += "\n      <div class=\"card-item\" onclick=\"pushMessageToLex('" + option.value + "')\" data-value=\"" + option.value + "\">\n        " + (option.url ? "<img src=\"" + option.url + "\">" : '') + "\n        <p class=\"card-link\">" + option.label + "</p>\n      </div>\n    ";
   });
-  cards += "</div>";
   return cards;
 }
 
 function generatePickerItem(options) {
-  var buttons = "<div class=\"buttons\">";
+  var buttons = document.createElement('div');
+  buttons.className = 'buttons';
+  buttons.innerHTML = '';
   options.forEach(function (option) {
-    buttons += "\n      <span class=\"button\" onclick=\"pushMessageToLex('" + option.value + "')\" data-value=\"" + option.value + "\">" + option.text + "</span>\n    ";
+    buttons.innerHTML += "\n      <span class=\"button\" onclick=\"pushMessageToLex('" + option.value + "')\" data-value=\"" + option.value + "\">" + option.label + "</span>\n    ";
   });
-  buttons += "</div>";
   return buttons;
 } // Push new message to lex and conversation
 
@@ -280,7 +293,7 @@ function chatinit() {
 
 function loadStyles() {
   var customStyle = document.createElement('style');
-  customStyle.innerText = '[id^="chatbot-widget"] *,[id^="chatbot-widget"] *:before,[id^="chatbot-widget"] *:after{box-sizing:border-box}[id^="chatbot-widget"] img{width:100%;height:auto;vertical-align:baseline}[id^="chatbot-widget"] .chatbot-header{position:relative;display:flex;justify-content:space-between;padding:30px 10px 10px;border-bottom:3px solid}[id^="chatbot-widget"] .logo{font-size:24px}[id^="chatbot-widget"] .chatbot-header img{max-width:100px;height:auto}[id^="chatbot-widget"] .widget-actions{position:absolute;right:0;top:0}[id^="chatbot-widget"] .widget-actions span{display:inline-block;padding:0 4px;color:#fff;font-size:20px;cursor:pointer}[id^="chatbot-widget"] .widget-actions__toggle{background:#5217ca}[id^="chatbot-widget"] .widget-actions__close{background:#f77}[id^="chatbot-widget"].window-widget .main-container{z-index:10;font-size:12px;min-height:350px;width:480px;bottom:86px;border:1px solid #5217ca}[id^="chatbot-widget"] #conversation{position:relative;overflow-y:auto;min-height:inherit;width:auto;padding-top:20px}[id^="chatbot-widget"].window-widget #conversation{height:380px}[id^="chatbot-widget"].window-page #conversation{height:75vh}[id^="chatbot-widget"] .chat-row{clear:both;overflow:hidden;padding:0 10px}[id^="chatbot-widget"] .bot-icon img{max-width:45px}[id^="chatbot-widget"] .message{max-width:65%;min-width:50%;border:0;margin-bottom:12px;margin-top:6px;border-radius:10px;box-shadow:0 0 10px #ccc;padding:10px}[id^="chatbot-widget"] .chat-row-left .bot-icon{margin-right:10px;float:left}[id^="chatbot-widget"] .chat-row-right .bot-icon{margin-left:10px;float:right}[id^="chatbot-widget"] .chat-row-left .message{float:left;text-align:left;border-top-left-radius:0}[id^="chatbot-widget"] .chat-row-right .message{float:right;text-align:right;border-top-right-radius:0}[id^="chatbot-widget"] .message--error{margin:4px;padding:4px 10px 4px 10px;border-radius:4px;text-align:right;min-width:50%;max-width:85%;float:right;background-color:#f77}[id^="chatbot-widget"] .chatform{position:relative;height:35px;margin:0}[id^="chatbot-widget"] .chatform-input{padding:8px 10px;font-size:14px;width:100%;display:inherit;border:1px solid #5217ca}[id^="chatbot-widget"] .chatform-input.disabled{cursor:not-allowed;background:#ccc}[id^="chatbot-widget"] .chatform-input::placeholder{color:#ccc;font-style:italic}[id^="chatbot-widget"] .chatform .btn-submit{position:absolute;top:0;right:0;height:inherit;background:#5217ca;color:#fff;border:0}[id^="chatbot-widget"] .button{display:inline-block;padding:5px 8px;background:#5217ca;margin:5px;color:#fff;cursor:pointer}[id^="chatbot-widget"] .cards{overflow:scroll;display:flex;flex-wrap:nowrap;justify-content:flex-start}[id^="chatbot-widget"] .card-item{display:flex;flex-direction:column;justify-content:stretch;align-items:center;max-width:200px;overflow:hidden;border:1px solid #ccc;border-radius:10px;margin:10px;cursor:pointer}[id^="chatbot-widget"] .card-item img{border-bottom:1px solid}[id^="chatbot-widget"] .card-item .card-title,[id^="chatbot-widget"] .card-item .card-sub-title{align-self:flex-start;margin:0;padding:0 5px}[id^="chatbot-widget"] .card-link{margin:0;color:#5217ca}[id^="chatbot-widget"] .buttons{width:100%;display:flex;align-items:center;flex-wrap:wrap;justify-content:center;padding:5px}[id^="chatbot-widget"] .view_chat{position:fixed;bottom:35px;right:35px;width:40px;height:40px;background:#5217ca;border-radius:50%;color:#fff;font-size:36px;line-height:100%;text-align:center;cursor:pointer}[id^="chatbot-widget"] .audio-control{cursor:pointer;background-color:#fff;box-shadow:0 0 8px #5217ca;border-radius:100px;height:100px;margin:20px auto;width:100px;display:flex;margin-bottom:0}[id^="chatbot-widget"] .audio-control:hover,[id^="chatbot-widget"] .audio-control--active{box-shadow:0 0 8px #5217ca}[id^="chatbot-widget"] .audio-control i{margin:auto}[id^="chatbot-widget"] .voice--message--status{text-align:center;padding:5px;margin-top:0}[id^="chatbot-widget"] .lex-voice--close{float:right;padding:12px}';
+  customStyle.innerText = '[id^="chatbot-widget"] *,[id^="chatbot-widget"] *:before,[id^="chatbot-widget"] *:after{box-sizing:border-box}[id^="chatbot-widget"] .chatbot-header{position:relative;display:flex;justify-content:space-between;padding:30px 10px 10px;border-bottom:3px solid}[id^="chatbot-widget"] .logo{font-size:24px}[id^="chatbot-widget"] .chatbot-header img{max-width:100px;height:auto}[id^="chatbot-widget"] .widget-actions{position:absolute;right:0;top:0}[id^="chatbot-widget"] .widget-actions span{display:inline-block;padding:0 4px;color:#fff;font-size:20px;cursor:pointer}[id^="chatbot-widget"] .widget-actions__toggle{background:#5217ca}[id^="chatbot-widget"] .widget-actions__close{background:#f77}[id^="chatbot-widget"].window-widget .main-container{z-index:10;font-size:12px;min-height:350px;width:480px;bottom:86px;border:1px solid #5217ca}[id^="chatbot-widget"] #conversation{position:relative;overflow-y:auto;min-height:inherit;width:auto;padding-top:20px}[id^="chatbot-widget"].window-widget #conversation{height:380px}[id^="chatbot-widget"].window-page #conversation{height:75vh}[id^="chatbot-widget"] .chat-row{clear:both;padding:0 10px}[id^="chatbot-widget"] .bot-icon img{max-width:45px}[id^="chatbot-widget"] .message{max-width:65%;min-width:50%;border:0;margin-bottom:12px;margin-top:6px;border-radius:10px;box-shadow:0 0 10px #ccc;padding:10px}[id^="chatbot-widget"] .chat-row-left .bot-icon{margin-right:10px;float:left}[id^="chatbot-widget"] .chat-row-right .bot-icon{margin-left:10px;float:right}[id^="chatbot-widget"] .chat-row-left .message{float:left;text-align:left;border-top-left-radius:0}[id^="chatbot-widget"] .chat-row-right .message{float:right;text-align:right;border-top-right-radius:0}[id^="chatbot-widget"] .message--error{margin:4px;padding:4px 10px 4px 10px;border-radius:4px;text-align:right;min-width:50%;max-width:85%;float:right;background-color:#f77}[id^="chatbot-widget"] .chatform{position:relative;height:35px;margin:0}[id^="chatbot-widget"] .chatform-input{padding:8px 10px;font-size:14px;width:100%;display:inherit;border:1px solid #5217ca}[id^="chatbot-widget"] .chatform-input.disabled{cursor:not-allowed;background:#ccc}[id^="chatbot-widget"] .chatform-input::placeholder{color:#ccc;font-style:italic}[id^="chatbot-widget"] .chatform .btn-submit{position:absolute;top:0;right:0;height:inherit;background:#5217ca;color:#fff;border:0}[id^="chatbot-widget"] .button{display:inline-block;padding:5px 8px;background:#5217ca;margin:5px;color:#fff;cursor:pointer}[id^="chatbot-widget"] .cards{overflow:scroll;display:flex;flex-wrap:nowrap;justify-content:space-between}[id^="chatbot-widget"] .card-item{display:flex;flex-direction:column;justify-content:stretch;align-items:center;border:1px solid #ccc;border-radius:10px;margin:10px;cursor:pointer}[id^="chatbot-widget"] .card-item img{max-width:150px}[id^="chatbot-widget"] .card-link{width:150px;padding:5px 10px;margin:0;color:#5217ca}[id^="chatbot-widget"] .view_chat{position:fixed;bottom:35px;right:35px;width:40px;height:40px;background:#5217ca;border-radius:50%;color:#fff;font-size:36px;line-height:100%;text-align:center;cursor:pointer}[id^="chatbot-widget"] .audio-control{cursor:pointer;background-color:#fff;box-shadow:0 0 8px #5217ca;border-radius:100px;height:100px;margin:20px auto;width:100px;display:flex;margin-bottom:0}[id^="chatbot-widget"] .audio-control:hover,[id^="chatbot-widget"] .audio-control--active{box-shadow:0 0 8px #5217ca}[id^="chatbot-widget"] .audio-control i{margin:auto}[id^="chatbot-widget"] .voice--message--status{text-align:center;padding:5px;margin-top:0}[id^="chatbot-widget"] .lex-voice--close{float:right;padding:12px}';
   document.head.appendChild(customStyle);
 } // Load aws-sdk script
 
